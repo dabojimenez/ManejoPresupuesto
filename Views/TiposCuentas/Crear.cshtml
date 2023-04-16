@@ -1,0 +1,46 @@
+﻿@model TipoCuenta
+@{
+    ViewData["Title"] = "Crear tipo Cuenta";
+}
+
+<h1>Crear Tipo de Cuenta</h1>
+<h5>El tipo de cuenta se refiere a como podemos agrupar cuentas.
+    Ejemplo: Prestamos, tarjetas de credito, etc.
+</h5>
+
+@*En este div, o espacio es donde colocaremos las validaciones o los mensajes de las validaciones otrogado por los data anotations
+Existen tres modos de listado de errores.
+All: Mostrara todos los errores
+ModelOnly: Mostrara los errores relacionados con el modelo
+*@
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form asp-controller="TiposCuentas" asp-action="Crear">
+    <div class="mb-3">
+        <label asp-for="Nombre" class="form-label"></label>
+        <input type="text" asp-for="Nombre" class="form-control" placeholder="Ej: David Gonzales" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input type="email" asp-for="Email" class="form-control" placeholder="Ej: David Gonzales" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Edad" class="form-label"></label>
+        <input type="number" asp-for="Edad" class="form-control" placeholder="Ej: David Gonzales" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="URL" class="form-label"></label>
+        <input type="url" asp-for="URL" class="form-control" placeholder="Ej: David Gonzales" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="TarjetaDeCredito" class="form-label"></label>
+        <input asp-for="TarjetaDeCredito" class="form-control" placeholder="Ej: David Gonzales" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Enviar</button>
+</form>
