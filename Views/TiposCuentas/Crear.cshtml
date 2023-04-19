@@ -20,27 +20,39 @@ ModelOnly: Mostrara los errores relacionados con el modelo
     <div class="mb-3">
         <label asp-for="Nombre" class="form-label"></label>
         <input type="text" asp-for="Nombre" class="form-control" placeholder="Ej: David Gonzales" />
+        @*En este espan, colocaremos las validaciones realizadas en el frontend, para eso usaremos el atributo
+            asp-validation-for, indicando el nombre del campo a validar o bueno a mostrar, del mensaje
+        *@
+        <span asp-validation-for="Nombre" class="text-danger"/>
     </div>
 
-    <div class="mb-3">
+    @*<div class="mb-3">
         <label asp-for="Email" class="form-label"></label>
         <input type="email" asp-for="Email" class="form-control" placeholder="Ej: David Gonzales" />
+        <span asp-validation-for="Email" class="text-danger" />
     </div>
 
     <div class="mb-3">
         <label asp-for="Edad" class="form-label"></label>
         <input type="number" asp-for="Edad" class="form-control" placeholder="Ej: David Gonzales" />
+        <span asp-validation-for="Edad" class="text-danger" />
     </div>
 
     <div class="mb-3">
         <label asp-for="URL" class="form-label"></label>
         <input type="url" asp-for="URL" class="form-control" placeholder="Ej: David Gonzales" />
+        <span asp-validation-for="URL" class="text-danger" />
     </div>
 
     <div class="mb-3">
         <label asp-for="TarjetaDeCredito" class="form-label"></label>
         <input asp-for="TarjetaDeCredito" class="form-control" placeholder="Ej: David Gonzales" />
-    </div>
+        <span asp-validation-for="TarjetaDeCredito" class="text-danger" />
+    </div>*@
 
     <button type="submit" class="btn btn-primary">Enviar</button>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}
