@@ -40,5 +40,20 @@ namespace ManejoPresupuesto.Controllers
 
             return View();
         }
+
+        [HttpGet]
+        //Metodo que usaremos en javascript, para realizar la validacion en el frontend
+        public async Task<IActionResult> VerificarExisteTipoCuenta(string nombre)
+        {
+            var usuarioId = 1;
+            var yaExisteTipoCuenta = await repositorioTiposCuentas.Existe(nombre, usuarioId);
+
+            if (yaExisteTipoCuenta)
+            {
+                //responderemos con un json, para llevar los datos, convertiremso en formato json, el sigueinte string, q es el mensjae
+                return Json($"El nombre {nombre} ya existe JSON");
+            }
+            return Json(true);
+        }
     }
 }
