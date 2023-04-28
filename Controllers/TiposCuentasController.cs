@@ -18,7 +18,7 @@ namespace ManejoPresupuesto.Controllers
         }
 
         [HttpPost]
-        public IActionResult Crear(TipoCuenta tipoCuenta)
+        public async Task<IActionResult>Crear(TipoCuenta tipoCuenta)
         {
             if (!ModelState.IsValid)
             {
@@ -26,7 +26,17 @@ namespace ManejoPresupuesto.Controllers
             }
 
             tipoCuenta.UsuarioId = 1;
-            repositorioTiposCuentas.Crear(tipoCuenta);
+
+            var yaExisteTipoCuenta = await repositorioTiposCuentas.Existe(tipoCuenta.Nombre, tipoCuenta.UsuarioId);
+
+            if (yaExisteTipoCuenta)
+            {
+                //le enviamos el error especificado en el campo donde sucita elerror
+                ModelState.AddModelError(nameof(tipoCuenta.Nombre), $"El nombre {tipoCuenta.Nombre} ya existe.");
+                return View(tipoCuenta);
+            }
+
+            await repositorioTiposCuentas.Crear(tipoCuenta);
 
             return View();
         }
