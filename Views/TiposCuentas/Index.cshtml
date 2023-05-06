@@ -19,13 +19,14 @@
             <th>Nombre</th>
         </tr>
     </thead>
-    <tbody>
+    @*le agregamos un id a la  tabla del body, para poder usar jqueryUi*@
+    <tbody id="reordenable">
         @foreach (var item in Model)
         {
             <tr>
                 <td>
-                    <a class="btn btn-primary">Editar</a>
-                    <a class="btn btn-danger">Borrar</a>
+                    <a class="btn btn-primary" asp-action="Editar" asp-route-id="@item.Id">Editar</a>
+                    <a class="btn btn-danger" asp-action="Borrar" asp-route-id="@item.Id">Borrar</a>
                     @*@Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |*@
                 </td>
                 @*<td>
@@ -39,3 +40,14 @@
         }
     </tbody>
 </table>
+
+@*agregamos un script, para usar jqueryUi*@
+@section Scripts {
+    <script>
+        //Aqui usaremos la libreria, de jquery
+        $(function(){
+            //seleccionamos el tbody, con su IDBCursor, para agregarle la reoganizacion de items
+            $("#reordenable").sortable();
+        })
+    </script>
+}
