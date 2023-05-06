@@ -25,6 +25,10 @@
         {
             <tr>
                 <td>
+                    @*Campo para obtener los ids, de cada tipo cuenta
+                        la clase ids, es la que usaremos para obtener d euna amnera rapida el id de cada tipo cuenta 
+                    *@
+                    <input type="hidden" value="@item.Id" class="ids"/>
                     <a class="btn btn-primary" asp-action="Editar" asp-route-id="@item.Id">Editar</a>
                     <a class="btn btn-danger" asp-action="Borrar" asp-route-id="@item.Id">Borrar</a>
                     @*@Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |*@
@@ -44,10 +48,48 @@
 @*agregamos un script, para usar jqueryUi*@
 @section Scripts {
     <script>
+        //generamos la url, especificamente el metodo que hemos definido en el controlador
+        const urlOrdenar = '@Url.Action("ordenar")';
         //Aqui usaremos la libreria, de jquery
         $(function(){
             //seleccionamos el tbody, con su IDBCursor, para agregarle la reoganizacion de items
-            $("#reordenable").sortable();
+            $("#reordenable").sortable({
+                //pasamos los datos, cuando se deje de arrastrar, por medio del metodo stop, la cual
+                //ejecutara una funcion, que actualizara los ordenes
+                stop: async function(e, ui){
+                    await actualizarOrdenes();
+                }})
+
+            //funcion que se ejecutara dnetro del stop
+            async function actualizarOrdenes(){
+                const ids = obtenerIdsElementos();
+                await enviarIdsAlBackend(ids);
+            }
+
+            //funcion que obtendra los ids, del tipo cuenta
+            function obtenerIdsElementos() {
+                const ids = $(".ids").map(function (){
+                    //iteramos lo q obtenemos de ids, en este caso retornando el valor
+                    return $(this).val();
+                }).get();//el .get, es para convertirlo en un arreglo
+                //retornamos el arreglo de ids
+                return ids;
+            }
+
+            //funcion que enviara los ids, al backend
+            async function enviarIdsAlBackend(ids){
+                //convertimos a fomato JSON
+                var data = JSON.stringify(ids);
+
+                await fetch(urlOrdenar, {
+                    //configuramos la peticon, ya que le pasmaos la url
+                    method: 'POST',
+                    body: data,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+            }
         })
     </script>
 }

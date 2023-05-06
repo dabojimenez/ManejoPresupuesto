@@ -120,6 +120,16 @@ namespace ManejoPresupuesto.Controllers
             return Json(true);
         }
 
-        
+        /// <summary>
+        /// Metodo que usaremos en JavaScrip, para poder guardar el orden en el cual han sido arrastradas las filas
+        /// recordando que [FromBody], es del cuerpo de la peticion http, en este caso reciviremos un arreglo de ids
+        /// </summary>
+        /// <param name="ids">Arreglo de ids, obtenida desde el cuerpo de la peticion</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> Ordenar([FromBody] int[] ids)
+        {
+            return Ok();
+        }
     }
 }
