@@ -22,7 +22,7 @@
     <div class="mb-3">
         <label asp-for="TipoCuentaId" class="form-label"></label>
         @*asp-items, con este atributo definimos los elementos que va a tener el select, ya que esta propiedad requiere la clase SelectListItem*@
-        <select asp-for="TipoCuentaId" asp-items="Model.TiposCuentas" class="form-select"/>
+        <select asp-for="TipoCuentaId" asp-items="Model.TiposCuentas" class="form-select"></select>
         <span asp-validation-for="TipoCuentaId" class="text-danger"></span>
     </div>
 

@@ -28,7 +28,8 @@ namespace ManejoPresupuesto.Controllers
             var tiposCuentas = await repositorioTiposCuentas.Obtener(usuarioId);
             var modelo = new CuentaCreacionViewModel();
             //realizamos un mapeo de tiposcuentas a selectlistitem, pasnadole el Nombre para el texto, y el id, para el value
-            modelo.TiposCuentas = tiposCuentas.Select(x => new SelectListItem(x.Nombre, x.Id.ToString()));
+            modelo.TiposCuentas = tiposCuentas.
+                Select(x => new SelectListItem(x.Nombre, x.Id.ToString()));
             return View(modelo);
         }
     }
