@@ -1,1 +1,109 @@
-﻿
+﻿@model IEnumerable<IndiceCuentasViewModel>
+
+@{
+    ViewData["Title"] = "Cuentas";
+
+    //funcion para centralizar el formato del valor de los balances
+    string FormateoBalance(decimal balance)
+    {
+        //retorna: 1,500.00
+        //le agrega la coma (,), y le quita el signo negativo
+        return Math.Abs(balance).ToString("N");
+    }
+
+    //centralizamos el obtener la clase de activo o pasivo deacuero al valor del baalnce
+    string ObtenerClaseBalance(decimal balance)
+    {
+        //sim el valance es mayor o igual a cero, devolvera activo, de lo contrario devuelve pasivo
+        return balance >= 0 ? "activo" : "pasivo";
+    }
+}
+
+<h1>Cuentas</h1>
+
+<a asp-action="Crear" class="btn btn-primary mb-3" >Crear nuevo</a>
+
+<div class="contenedor-totales mb-3">
+    @*activos*@
+    <div>
+        <div>
+            <strong>Activos</strong>
+        </div>
+        <div class="activo">
+            @*Colocamos en la columna de activos, la sumatoria de balances que son mayores a cero*@
+            @FormateoBalance(Model.Where(x => x.Balance > 0).Sum(x => x.Balance))
+        </div>
+    </div>
+
+    @*pasivos*@
+    <div>
+        <div>
+            <strong>Pasivos</strong>
+        </div>
+        <div class="pasivo">
+            @*Colocamos en la columna de pasivos, la sumatoria de balances que son menores a cero*@
+            @FormateoBalance(Model.Where(x => x.Balance < 0).Sum(x => x.Balance))
+        </div>
+    </div>
+
+    @*total*@
+    <div>
+        <div>
+            <strong>Total</strong>
+        </div>
+        <div>
+            @*Colocamos en la columna de totales, la sumatoria de todos los balances *@
+            @FormateoBalance(Model.Sum(x => x.Balance))
+        </div>
+    </div>
+
+    @*mostraremos un acordeon, para mostrar las cuentas*@
+    <div class="accordion acordeon-cuentas">
+        @foreach (var tipoCuenta in Model)
+        {
+            <div class="accordion-item">
+                @*cabecera del acordeon*@
+                <h2 class="accordion-header" id="cabeceraUno">
+                    @{
+                        //creamos una variables, para capturar el id de cada tipocuenta, y usar en cada acordeon
+                        var id = tipoCuenta.TipoCuenta.Replace(" ", "");
+                        //generamos un id, dinamicamente para los acordeones
+                        var dataBSTarget = "#" + id;
+                        //obtenemos la clase de forma dinamica, la clase del css
+                        var claseTipoCuenta = ObtenerClaseBalance(tipoCuenta.Balance);
+                    }
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="@dataBSTarget">
+                        <span class="me-3">
+                            <span>
+                                <strong>@tipoCuenta.TipoCuenta</strong>
+                            </span>
+                            <span class="@claseTipoCuenta">@FormateoBalance(tipoCuenta.Balance)</span>
+                        </span>
+                    </button>
+                </h2>
+
+                @*cuerpo del acordeon*@
+                <div id="@id" class="accordion-collapse collapse show">
+                    <div>
+                        <ul class="list-group">
+                            @foreach (var cuenta in tipoCuenta.Cuentas)
+                            {
+                                //mostraremos la cuenta individual, agregandole la clase de css
+                                var claseCuenta = ObtenerClaseBalance(cuenta.Balance);
+                                <li class="list-group-item">
+                                    <span>
+                                        <strong>@cuenta.Nombre</strong>
+                                    </span>
+                                    <span class="@claseCuenta">
+                                        @FormateoBalance(cuenta.Balance)
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>

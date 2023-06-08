@@ -20,10 +20,6 @@ namespace ManejoPresupuesto.Controllers
             this.servicioUsuarios = servicioUsuarios;
             this.reposotorioCuentas = reposotorioCuentas;
         }
-        public IActionResult Index()
-        {
-            return View();
-        }
 
         [HttpGet]
         public async Task<IActionResult> Crear()
@@ -56,6 +52,26 @@ namespace ManejoPresupuesto.Controllers
             //si todo es valido creamos la cuenta
             await reposotorioCuentas.Crear(cuenta);
             return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+            var cuentasConTipoCuenta = await reposotorioCuentas.Buscar(usuarioId);
+            //construimos nuestro modelo, agrupando por tipocuenta
+            var modelo = cuentasConTipoCuenta
+                //agrupacion por tipocuenta
+                .GroupBy(x => x.TipoCuenta)
+                //realizamos un mapeo con el select, realziando una proyeccion a indicecuentaviewmodel
+                .Select( grupo => new IndiceCuentasViewModel
+                {
+                    //el key, representa el valor que utilizamos para realizar el groupby
+                    TipoCuenta = grupo.Key,
+                    //cuentas, obtenemos el ienumerable, deacuerdo al tipocuenta
+                    Cuentas = grupo.AsEnumerable()
+                }).ToList();
+            return View(modelo);
+
         }
 
         private async Task<IEnumerable<SelectListItem>> ObtenerTiposCuentas(int usuarioId)

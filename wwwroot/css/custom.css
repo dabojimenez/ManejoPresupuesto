@@ -1,3 +1,31 @@
 ﻿#reordenable tr {
     cursor:move;
 }
+
+.contenedor-totales {
+    /*para mostrar en columnas*/
+    display: flex;
+    /*le damos spacios entre cada columna*/
+    justify-content: space-around;
+    /*tamano de la fuente*/
+    font-size: 1.2rem;
+    /*le colocamos en el centro el valor de cada columna*/
+    text-align: center;
+}
+
+.activo{
+    /*damos, el color al texto*/
+    color:blue;
+}
+
+.pasivo {
+    color: red;
+}
+
+/*seleccionamos la clase (acordeon-cuentas) y dentro de la clase, la etiqueta <button>*/
+.acordeon-cuentas button {
+    /*le damos color al texto del boton*/
+    color: black !important;
+    /*cambiamos el tamano de la fuenta*/
+    font-size: 1rem;
+}

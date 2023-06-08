@@ -15,5 +15,8 @@ namespace ManejoPresupuesto.Models
         public decimal Balance { get; set; }
         [StringLength(maximumLength: 1000)]
         public string Descripcion { get; set; }
+
+        //se agrega la nueva propieda, para mostrar la cuenta
+        public string TipoCuenta { get; set; }
     }
 }
