@@ -1,0 +1,23 @@
+﻿
+/*seleccionamos la clase (acordeon-cuentas) y dentro de la clase, la etiqueta <button>*/
+.acordeon-cuentas button {
+    /*le damos color al texto del boton*/
+    color: black !important;
+    /*cambiamos el tamano de la fuenta*/
+    font-size: 1.3rem;
+}
+
+    .acordeon-cuentas button > span {
+        display: flex;
+        justify-content: space-between;
+        width: 100%
+    }
+
+.acordeon-cuentas ul li {
+    display: flex;
+    justify-content: space-between;
+}
+
+.acordeon-cuentas .accordion-collapse {
+    font-size: 1rem;
+}

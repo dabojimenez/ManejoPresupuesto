@@ -22,10 +22,3 @@
     color: red;
 }
 
-/*seleccionamos la clase (acordeon-cuentas) y dentro de la clase, la etiqueta <button>*/
-.acordeon-cuentas button {
-    /*le damos color al texto del boton*/
-    color: black !important;
-    /*cambiamos el tamano de la fuenta*/
-    font-size: 1rem;
-}
