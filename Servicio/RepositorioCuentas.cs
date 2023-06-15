@@ -7,6 +7,7 @@ namespace ManejoPresupuesto.Servicio
     public interface IReposotorioCuentas
     {
         Task Actualizar(CuentaCreacionViewModel cuenta);
+        Task Borrar(int id);
         Task<IEnumerable<Cuenta>> Buscar(int usuarioId);
         Task Crear(Cuenta cuenta);
         Task<Cuenta> ObtenerPorId(int id, int usuarioId);
@@ -69,6 +70,13 @@ namespace ManejoPresupuesto.Servicio
                     SET Nombre = @Nombre, balance = @Balance,
                     Descripcion = @Descripcion, TipoCuentaId = @TipoCuentaId
                     WHERE Id = @Id;", cuenta);
+        }
+
+        public async Task Borrar(int id)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.ExecuteAsync(@"DELETE Cuentas Where id = @Id",
+                new {id});
         }
     }
 }
