@@ -1,0 +1,57 @@
+﻿@model IEnumerable<ManejoPresupuesto.Models.Categoria>
+
+@{
+    ViewData["Title"] = "Categorias";
+}
+
+<h1>Index</h1>
+<h5>
+    La categoria nos permite indicar en que gastamos nuestro dinero,
+    tambien, de donde provienen nuestros ingresos.
+</h5>
+<p>
+    <a asp-action="Crear" class="btn btn-primary mb-3">Crear Nuevo</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Acciones
+            </th>
+            <th>
+                Nombre
+            </th>
+            <th>
+                Tipo
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var categoria in Model)
+        {
+            <tr>
+                <td>
+                    <a class="btn btn-primary" asp-action="Editar" asp-route-id="@categoria.Id">Editar</a>
+                    <a class="btn btn-danger" asp-action="Borrar" asp-route-id="@categoria.Id">Borrar</a>
+                    @*@Html.DisplayFor(modelItem => item.Id)*@
+                </td>
+                <td>
+                    @categoria.Nombre
+                    @*@Html.DisplayFor(modelItem => item.Nombre)*@
+                </td>
+                <td>
+                    @categoria.TipoOperacionId.ToString()
+                    @*@Html.DisplayFor(modelItem => item.TipoOperacionId)*@
+                </td>
+                <td>
+                    @*@Html.DisplayFor(modelItem => item.UsuarioId)*@
+                </td>
+                <td>
+                    @*@Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |*@
+                    @*@Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |*@
+                    @*@Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })*@
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
