@@ -5,7 +5,7 @@ namespace ManejoPresupuesto.Models
     public class Transaccion
     {
         public int Id { get; set; }
-        public int UsurioId { get; set; }
+        public int UsuarioId { get; set; }
         [Display(Name = "Fecha Transaccion")]
         //indicamos que es solo de tipo fecha sin la hora, con DataType.Date
         [DataType(DataType.Date)]
@@ -21,5 +21,7 @@ namespace ManejoPresupuesto.Models
         [Range(1, maximum: int.MaxValue, ErrorMessage = "Debe seleccionar una Categoria")]
         [Display(Name = "Cuenta")]
         public int CuentaId { get; set; }
+        [Display(Name = "Tipo Operacion")]
+        public TipoOperacion TipoOperacionId { get; set; } = TipoOperacion.Ingreso;
     }
 }
