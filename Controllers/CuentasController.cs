@@ -13,16 +13,19 @@ namespace ManejoPresupuesto.Controllers
         private readonly IServicioUsuarios servicioUsuarios;
         private readonly IReposotorioCuentas reposotorioCuentas;
         private readonly IMapper mapper;
+        private readonly IRepositorioTransacciones repositorioTransacciones;
 
         public CuentasController(IRepositorioTiposCuentas repositorioTiposCuentas,
             IServicioUsuarios servicioUsuarios,
             IReposotorioCuentas reposotorioCuentas,
-            IMapper mapper) 
+            IMapper mapper,
+            IRepositorioTransacciones repositorioTransacciones) 
         {
             this.repositorioTiposCuentas = repositorioTiposCuentas;
             this.servicioUsuarios = servicioUsuarios;
             this.reposotorioCuentas = reposotorioCuentas;
             this.mapper = mapper;
+            this.repositorioTransacciones = repositorioTransacciones;
         }
 
         [HttpGet]
@@ -151,6 +154,67 @@ namespace ManejoPresupuesto.Controllers
             }
             await reposotorioCuentas.Borrar(id);
             return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Detalle(int id, int mes, int year)
+        {
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+            var cuenta = await reposotorioCuentas.ObtenerPorId(id, usuarioId);
+            if (cuenta is null)
+            {
+                return RedirectToAction("NoEncontrado", "Home");
+            }
+
+            //inicializamos als fechas
+            DateTime fechaInicio;
+            DateTime fechaFin;
+            //validamos que no sean fechas incorrrectas
+            if (mes <= 0 || mes > 12 || year <= 1900)
+            {
+                var hoy = DateTime.Today;
+                //fecha de inicio sera el dia uno del mes actual
+                fechaInicio = new DateTime(hoy.Year, hoy.Month, 1);
+            }
+            else
+            {
+                fechaInicio = new DateTime(year, mes, 1);
+            }
+            //llevamos la fecha fin hacia el ultimo dia del mismo mes de fecha inicio
+            fechaFin = fechaInicio.AddMonths(1).AddDays(-1);
+
+            var obtenerTransaccionesPorCuenta = new ObtenerTransaccionesPorCuenta()
+            {
+                CuentaId = id,
+                UsuarioId = usuarioId,
+                FechaFin = fechaFin,
+                FechaInicio = fechaInicio,
+            };
+
+            var transacciones = await repositorioTransacciones.ObtenerPorCuentaId(obtenerTransaccionesPorCuenta);
+            var modelo = new ReporteTransaccionesDetalladas();
+            //esta clase reutilizaremos ams adelante por eso usaremos el viewbag
+            ViewBag.Cuenta = cuenta.Nombre.ToUpper();
+
+            var transaccionesPorFecha = transacciones.OrderByDescending(x => x.FechaTransaccion)
+                .GroupBy(x => x.FechaTransaccion)
+                //agrupamos nuestra transaccion por fecha
+                .Select(grupo => new ReporteTransaccionesDetalladas.TransaccionesPorFecha()
+                {
+                    FechaTransaccion = grupo.Key,
+                    Transacciones = grupo.AsEnumerable()
+                });
+
+            modelo.TransaccionesAgrupadas = transaccionesPorFecha;
+            modelo.FechaInicio = fechaInicio;
+            modelo.FechaFin = fechaFin;
+
+            ViewBag.mesAnterior = fechaInicio.AddMonths(-1).Month;
+            ViewBag.yearAnterior = fechaInicio.AddMonths(-1).Year;
+
+            ViewBag.mesPosterior = fechaInicio.AddMonths(1).Month;
+            ViewBag.yearPosterior = fechaInicio.AddMonths(1).Year;
+
+            return View(modelo);
         }
     }
 }
