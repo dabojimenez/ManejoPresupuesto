@@ -78,7 +78,7 @@
                 {
                     <tr style="vertical-align: middle">
                         <td>
-                            <a asp-controller="Transacciones" asp-action="Editar" asp-route-id="@transaccion.Id">
+                            <a asp-controller="Transacciones" asp-action="Editar" asp-route-id="@transaccion.Id" asp-route-urlRetorno="@ViewBag.urlRetorno">
                                 <i class="bi-pencil"></i>
                             </a>
                         </td>

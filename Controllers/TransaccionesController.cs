@@ -33,7 +33,8 @@ namespace ManejoPresupuesto.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Editar(int id)
+        //urlRetorno, la usaremos para retornar al usuario a la vista donde se encontraba
+        public async Task<IActionResult> Editar(int id, string urlRetorno = null)
         {
             var usuarioid = servicioUsuarios.ObtenerUsuarioId();
             var transaccion = await repositorioTransacciones.ObtenerPorId(id, usuarioid);
@@ -53,6 +54,7 @@ namespace ManejoPresupuesto.Controllers
             modelo.CuentaAnteriorId = transaccion.CuentaId;
             modelo.Categorias = await ObtenerCategorias(usuarioid, transaccion.TipoOperacionId);
             modelo.Cuentas = await ObtenerCuentas(usuarioid);
+            modelo.urlRetorno = urlRetorno;
             return View(modelo);
         }
 
@@ -86,7 +88,16 @@ namespace ManejoPresupuesto.Controllers
                 transaccion.Monto *= -1;
             }
             await repositorioTransacciones.Actualizar(transaccion, modelo.MontoAnterior, modelo.CuentaAnteriorId);
-            return RedirectToAction("Index");
+            if (string.IsNullOrEmpty(modelo.urlRetorno))
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                //LocalRedirect, hacemos auna redireccion auna url que se encuentra dentro de nuestro dominio
+                return LocalRedirect(modelo.urlRetorno);
+            }
+            
         }
 
         public async Task<IActionResult> Crear()
@@ -154,7 +165,7 @@ namespace ManejoPresupuesto.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Borrar(int id)
+        public async Task<IActionResult> Borrar(int id, string urlRetorno = null)
         {
             var usuarioid = servicioUsuarios.ObtenerUsuarioId();
             var transacciones = await repositorioTransacciones.ObtenerPorId(id, usuarioid);
@@ -164,7 +175,15 @@ namespace ManejoPresupuesto.Controllers
             }
 
             await repositorioTransacciones.Borrar(id);
-            return RedirectToAction("Index");
+
+            if (string.IsNullOrEmpty(urlRetorno))
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return LocalRedirect(urlRetorno);
+            }
         }
     }
 }

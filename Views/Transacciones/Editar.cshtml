@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Editar Transaccion";
+
+    //para redirigir al usuario a la parte donde se encontraba, (??) si es nulo
+    var linkCancelar = Model.urlRetorno ?? Url.Action("Index");
 }
 
 <h1>Editar Transaccion</h1>
@@ -12,6 +15,7 @@
         <form asp-action="Editar">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id"/>
+            <input type="hidden" asp-for="urlRetorno"/>
             <input type="hidden" asp-for="MontoAnterior"/>
             <input type="hidden" asp-for="CuentaAnteriorId"/>
             <div class="mb-3  form-group">
@@ -51,14 +55,15 @@
             </div>*@
             <button class="btn btn-primary">Actalizar</button>
             <button class="btn btn-danger" asp-action="Borrar">Borrar</button>
+            <a class="btn btn-secondary" href="@linkCancelar">Cancelar</a>
         </form>
     </div>
 </div>
 
-<div>
+@*<div>
     <a asp-action="Index">Cancelar</a>
 </div>
-
+*@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/FormularioTransacciones.js" asp-append-version="true"></script>
