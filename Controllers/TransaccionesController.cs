@@ -27,9 +27,58 @@ namespace ManejoPresupuesto.Controllers
             this.repositorioTransacciones = repositorioTransacciones;
             this.mapper = mapper;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index(int mes, int year)
         {
-            return View();
+            var usuarioid = servicioUsuarios.ObtenerUsuarioId();
+            //inicializamos als fechas
+            DateTime fechaInicio;
+            DateTime fechaFin;
+            //validamos que no sean fechas incorrrectas
+            if (mes <= 0 || mes > 12 || year <= 1900)
+            {
+                var hoy = DateTime.Today;
+                //fecha de inicio sera el dia uno del mes actual
+                fechaInicio = new DateTime(hoy.Year, hoy.Month, 1);
+            }
+            else
+            {
+                fechaInicio = new DateTime(year, mes, 1);
+            }
+            //llevamos la fecha fin hacia el ultimo dia del mismo mes de fecha inicio
+            fechaFin = fechaInicio.AddMonths(1).AddDays(-1);
+
+            var parametro = new ParametrosObtenerTransaccionesPorUsuario()
+            {
+                UsuarioId = usuarioid,
+                FechaFin = fechaFin,
+                FechaInicio = fechaInicio
+            };
+
+            var transacciones = await repositorioTransacciones.ObtenerPorUsuarioId(parametro);
+
+            var modelo = new ReporteTransaccionesDetalladas();
+
+            var transaccionesPorFecha = transacciones.OrderByDescending(x => x.FechaTransaccion)
+                .GroupBy(x => x.FechaTransaccion)
+                //agrupamos nuestra transaccion por fecha
+                .Select(grupo => new ReporteTransaccionesDetalladas.TransaccionesPorFecha()
+                {
+                    FechaTransaccion = grupo.Key,
+                    Transacciones = grupo.AsEnumerable()
+                });
+
+            modelo.TransaccionesAgrupadas = transaccionesPorFecha;
+            modelo.FechaInicio = fechaInicio;
+            modelo.FechaFin = fechaFin;
+
+            ViewBag.mesAnterior = fechaInicio.AddMonths(-1).Month;
+            ViewBag.yearAnterior = fechaInicio.AddMonths(-1).Year;
+
+            ViewBag.mesPosterior = fechaInicio.AddMonths(1).Month;
+            ViewBag.yearPosterior = fechaInicio.AddMonths(1).Year;
+            //enviamso el patch de la url
+            ViewBag.urlRetorno = HttpContext.Request.Path + HttpContext.Request.QueryString;
+            return View(modelo);
         }
 
         [HttpGet]

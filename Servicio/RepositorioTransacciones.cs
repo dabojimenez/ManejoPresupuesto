@@ -12,6 +12,7 @@ namespace ManejoPresupuesto.Servicio
         Task Crear(Transaccion transaccion);
         Task<IEnumerable<Transaccion>> ObtenerPorCuentaId(ObtenerTransaccionesPorCuenta modelo);
         Task<Transaccion> ObtenerPorId(int id, int usuarioId);
+        Task<IEnumerable<Transaccion>> ObtenerPorUsuarioId(ParametrosObtenerTransaccionesPorUsuario modelo);
     }
     public class RepositorioTransacciones: IRepositorioTransacciones
     {
@@ -83,13 +84,27 @@ namespace ManejoPresupuesto.Servicio
             using var connection = new SqlConnection(_connectionString);
             return await connection.QueryAsync<Transaccion>(@"
                         select tra.Id, tra.Monto, tra.FechaTransaccion,
-                        cat.Nombre as [Categoria], cue.Nombre as [Cuenta ], cat.TipoOperacionId
+                        cat.Nombre as [Categoria], cue.Nombre as [Cuenta], cat.TipoOperacionId
                         from Transacciones tra
                         inner join Categorias cat on cat.Id = tra.CategoriaId
                         inner join Cuentas cue on cue.Id = tra.CuentaId
                         where tra.CuentaId = @CuentaId and tra.UsuarioId = @UsuarioId
                         and tra.FechaTransaccion between @fechaInicio and @fechafin",
                         modelo);
+        }
+
+        public async Task<IEnumerable<Transaccion>> ObtenerPorUsuarioId(ParametrosObtenerTransaccionesPorUsuario modelo)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            return await connection.QueryAsync<Transaccion>(@"
+                        select tra.Id, tra.Monto, tra.FechaTransaccion,
+                        cat.Nombre as [Categoria], cue.Nombre as [Cuenta], cat.TipoOperacionId
+                        from Transacciones tra
+                        inner join Categorias cat on cat.Id = tra.CategoriaId
+                        inner join Cuentas cue on cue.Id = tra.CuentaId
+                        where tra.UsuarioId = @UsuarioId
+                        and tra.FechaTransaccion between @fechaInicio and @fechafin
+                        order by tra.FechaTransaccion desc", modelo);
         }
     }
 }
