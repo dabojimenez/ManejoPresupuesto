@@ -2,6 +2,7 @@
 using ManejoPresupuesto.Models;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using System.Reflection;
 
 namespace ManejoPresupuesto.Servicio
 {
@@ -12,6 +13,8 @@ namespace ManejoPresupuesto.Servicio
         Task Crear(Transaccion transaccion);
         Task<IEnumerable<Transaccion>> ObtenerPorCuentaId(ObtenerTransaccionesPorCuenta modelo);
         Task<Transaccion> ObtenerPorId(int id, int usuarioId);
+        Task<IEnumerable<ResultadoObtenerPorMes>> ObtenerPorMes(int usuarioId, int year);
+        Task<IEnumerable<ResultadoObtenerPorSemana>> ObtenerPorSemana(ParametrosObtenerTransaccionesPorUsuario modelo);
         Task<IEnumerable<Transaccion>> ObtenerPorUsuarioId(ParametrosObtenerTransaccionesPorUsuario modelo);
     }
     public class RepositorioTransacciones: IRepositorioTransacciones
@@ -105,6 +108,36 @@ namespace ManejoPresupuesto.Servicio
                         where tra.UsuarioId = @UsuarioId
                         and tra.FechaTransaccion between @fechaInicio and @fechafin
                         order by tra.FechaTransaccion desc", modelo);
+        }
+
+        public async Task<IEnumerable<ResultadoObtenerPorSemana>> ObtenerPorSemana(
+            ParametrosObtenerTransaccionesPorUsuario modelo)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            return await connection.QueryAsync<ResultadoObtenerPorSemana>(@"
+                        --DATEDIFF, PERMITE CALCULAR LA DIFERENCIA ENTRE DOS FECHAS, DICIENDO AL DIFERENCIA EN DIAS USANDO (d)
+                        --EN ESTE CASO, ESTAMOS REALIZANDO LA DIFERENCIA PARA OBTENER LOS DIAS, LE DIVIDIMOS APRA 7 Y SUMAMOS 1 Y OBTENDREMOS LA SEMANA
+                        SELECT DATEDIFF(d, @FECHAINICIO, FechaTransaccion)/7+1 AS SEMANA,
+                        SUM(Transacciones.Monto) AS MONTO , CAT.TipoOperacionId
+                        FROM Transacciones
+                        INNER JOIN Categorias CAT ON CAT.Id = Transacciones.CategoriaId
+                        WHERE Transacciones.UsuarioId = @USUARIOID AND FechaTransaccion BETWEEN @FECHAINICIO AND @FECHAFIN
+                        GROUP BY  DATEDIFF(d, @FECHAINICIO, FechaTransaccion)/7 + 1, CAT.TipoOperacionId
+                        ", modelo);
+        }
+
+        public async Task<IEnumerable<ResultadoObtenerPorMes>> ObtenerPorMes(int usuarioId, int year)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            return await connection.QueryAsync<ResultadoObtenerPorMes>(@"
+                        SELECT MONTH(TRA.FechaTransaccion) AS MES,
+                        SUM(TRA.Monto) AS MONTO, CAT.TipoOperacionId
+                        FROM TRANSACCIONES TRA
+                        INNER JOIN CATEGORIAS CAT ON CAT.ID = TRA.CATEGORIAID
+                        WHERE TRA.UsuarioId = @usuarioId AND YEAR(TRA.FechaTransaccion) = @year
+                        GROUP BY MONTH(TRA.FechaTransaccion), CAT.TipoOperacionId
+                        ORDER BY MONTH(TRA.FechaTransaccion)"
+                        , new {usuarioId, year});
         }
     }
 }

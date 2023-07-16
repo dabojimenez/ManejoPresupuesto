@@ -1,0 +1,15 @@
+﻿@model DateTime
+
+<h4>
+    @*MES DE INICIO*@
+    <a asp-route-mes="@ViewBag.mesAnterior" asp-route-year="@ViewBag.yearAnterior" class="btn btn-secondary">
+        <i class="bi-chevron-left"></i>
+    </a>
+    @*@Model.FechaInicio.ToString("MMMM")-@Model.FechaInicio.Year*@
+    @Model.ToString("MMMM")-@Model.Year
+    @*MES FINAL*@
+    <a asp-route-mes="@ViewBag.mesPosterior" asp-route-year="@ViewBag.yearPosterior" class="btn btn-secondary">
+        <i class="bi-chevron-right"></i>
+    </a>
+    @*@Model.FechaFin.ToString("MMM")-@Model.FechaFin.Year*@
+</h4>

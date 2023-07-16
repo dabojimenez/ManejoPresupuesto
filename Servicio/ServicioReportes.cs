@@ -4,6 +4,7 @@ namespace ManejoPresupuesto.Servicio
 {
     public interface IServicioReportes
     {
+        Task<IEnumerable<ResultadoObtenerPorSemana>> ObtenerReporteSemanal(int usuarioid, int mes, int year, dynamic ViewBag);
         Task<ReporteTransaccionesDetalladas> ObtenerReporteTransaccionesDetalladas(int usuarioId, int mes, int year, dynamic ViewBag);
         Task<ReporteTransaccionesDetalladas> ObtenerReporteTransaccionesDetalladasPorCuenta(int usuarioId, int cuentaId, int mes, int year, dynamic ViewBag);
     }
@@ -113,6 +114,23 @@ namespace ManejoPresupuesto.Servicio
             fechaFin = fechaInicio.AddMonths(1).AddDays(-1);
 
             return (fechaInicio, fechaFin);
+        }
+
+        public async Task<IEnumerable<ResultadoObtenerPorSemana>> ObtenerReporteSemanal(int usuarioid, int mes
+            , int year, dynamic ViewBag)
+        {
+            (DateTime fechaInicio, DateTime fechaFin) = GenerarFechaInicioYFin(mes, year);
+
+            var parametro = new ParametrosObtenerTransaccionesPorUsuario()
+            {
+                UsuarioId = usuarioid,
+                FechaFin = fechaFin,
+                FechaInicio = fechaInicio
+            };
+
+            AsignarValoresAlViewBag(ViewBag, fechaInicio);
+            var modelo = await repositorioTransacciones.ObtenerPorSemana(parametro);
+            return modelo;
         }
     }
 }
