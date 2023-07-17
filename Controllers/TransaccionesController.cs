@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Bibliography;
 using ManejoPresupuesto.Models;
 using ManejoPresupuesto.Servicio;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Data;
 using System.Reflection;
 
 namespace ManejoPresupuesto.Controllers
@@ -303,6 +306,132 @@ namespace ManejoPresupuesto.Controllers
         public IActionResult ExcelReporte()
         {
             return View();
+        }
+
+        [HttpGet]
+        //es de tipo FileResult, para q el usuario pueda descargar el archivo xml, al invocar edsta accion
+        public async Task<FileResult> ExportarExcelPorMes(int mes, int year)
+        {
+            var fechaInicio = new DateTime(year, mes, 1);
+            var fechaFin = fechaInicio.AddMonths(1).AddDays(-1);
+
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+
+            var transacciones = await repositorioTransacciones.ObtenerPorUsuarioId(
+                //instanciamos el parametro, directo en la funcion
+                new ParametrosObtenerTransaccionesPorUsuario
+                {
+                    UsuarioId = usuarioId,
+                    FechaInicio = fechaInicio,
+                    FechaFin = fechaFin,
+                });
+            //nombramos el archivo
+            string nomnreArchivo = $"Manejo Presupuesto - {fechaInicio.ToString("MMM yyyy")}.xlsx";
+
+            //Empeamos a creael archivo de excel, en la funcion de retorno, en este caso, lo hacemos directo
+            return GenerarExcel(nomnreArchivo, transacciones);
+        }
+
+        [HttpGet]
+        public async Task<FileResult> ExportarExcelPorYear(int year)
+        {
+            var fechaInicio = new DateTime(year, 1, 1);
+            var fechaFin = fechaInicio.AddYears(1).AddDays(-1);
+            
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+
+            var transacciones = await repositorioTransacciones.ObtenerPorUsuarioId(
+                new ParametrosObtenerTransaccionesPorUsuario
+                {
+                    UsuarioId = usuarioId,
+                    FechaInicio = fechaInicio,
+                    FechaFin = fechaFin,
+                });
+
+            string nomnreArchivo = $"Manejo Presupuesto - {fechaInicio.ToString("yyyy")}.xlsx";
+
+            return GenerarExcel(nomnreArchivo, transacciones);
+        }
+
+        [HttpGet]
+        public async Task<FileResult> ExportarExcelTodo()
+        {
+            //agregamos una fecha de inicio bien baja, y agregamos una fecha de bsuqueda maxima
+            var fechaInicio = DateTime.Today.AddYears(-100);
+            var fechaFin = DateTime.Today.AddYears(100);
+
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+
+            var transacciones = await repositorioTransacciones.ObtenerPorUsuarioId(
+                new ParametrosObtenerTransaccionesPorUsuario
+                {
+                    UsuarioId = usuarioId,
+                    FechaInicio = fechaInicio,
+                    FechaFin = fechaFin,
+                });
+
+            string nomnreArchivo = $"Manejo Presupuestos - {DateTime.Today.ToString("dd-MM-yyyy")}.xlsx";
+
+            return GenerarExcel(nomnreArchivo, transacciones);
+        }
+
+        /// <summary>
+        /// Creara el arhcivo de excel, revision como parametro el nombre dela rchivo y el listado de transacciones
+        /// </summary>
+        /// <param name="nombreArchivo">Nombre del archivo de destino</param>
+        /// <param name="transacciones">Listado de transacciones, para ainsertar en ela rchivo excel</param>
+        /// <returns>Retorna el archivo excel</returns>
+        private FileResult GenerarExcel(string nombreArchivo, IEnumerable<Transaccion> transacciones)
+        {
+            //para crear el archivo, debemos usar un datatable
+            //instanciamos un datatable, y le agregamos el nombre, como queremos llamar a nuestra tabla
+            DataTable dataTable = new DataTable("Transacciones");
+            //agregamos las columnas, indicandole un rango de columnas a crear
+            dataTable.Columns.AddRange(new DataColumn[]
+            {
+                //definimso la columna que tendra nuestro arhcivo de excel, en este caso tendra una columna llamada fecha, etc
+                new DataColumn("Fecha"),
+                new DataColumn("Cuenta"),
+                new DataColumn("Categoria"),
+                new DataColumn("Nota"),
+                new DataColumn("Monto"),
+                new DataColumn("Ingreso/Gasto")
+            });
+
+            //iteramos nuestras transacciones
+            foreach (var transaccion in transacciones)
+            {
+                //agregamos la data de las transacicones
+                //NOTA: importante, que dbee ir en el orden de las columnas creadas
+                dataTable.Rows.Add(transaccion.FechaTransaccion,
+                    transaccion.Cuenta,
+                    transaccion.Categoria,
+                    transaccion.Nota,
+                    transaccion.Monto,
+                    transaccion.TipoOperacionId);
+            }
+
+            //generamos el archivo PERSE
+
+            using (XLWorkbook workbook = new XLWorkbook())
+            {
+                //Worksheets, quiere decir las hojas del excel
+                //agregamos nuestro datatable
+                workbook.Worksheets.Add(dataTable);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    //vamos a guardar el archivo de excel, en memori stream, para despues devolver al usuario
+                    workbook.SaveAs(stream);
+                    //con file, le dmaos la repsuesta al usuairo, para q pueda descargar ela rhcivo de excel
+                    return File(stream.ToArray(),
+                        //Agregamos el content/Type
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        //agregamos el nombre dela rchivo
+                        nombreArchivo
+                        );
+                }
+            }
+
         }
         public IActionResult Calendario()
         {

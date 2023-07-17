@@ -101,7 +101,8 @@ namespace ManejoPresupuesto.Servicio
             using var connection = new SqlConnection(_connectionString);
             return await connection.QueryAsync<Transaccion>(@"
                         select tra.Id, tra.Monto, tra.FechaTransaccion,
-                        cat.Nombre as [Categoria], cue.Nombre as [Cuenta], cat.TipoOperacionId
+                        cat.Nombre as [Categoria], cue.Nombre as [Cuenta], cat.TipoOperacionId,
+                        tra.Nota
                         from Transacciones tra
                         inner join Categorias cat on cat.Id = tra.CategoriaId
                         inner join Cuentas cue on cue.Id = tra.CuentaId
