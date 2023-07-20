@@ -437,5 +437,60 @@ namespace ManejoPresupuesto.Controllers
         {
             return View();
         }
+
+
+        //JsonResult, retornaremos un json
+        //fullcalendar, nos envia la fecha de inicio y la fecha de fin
+        /// <summary>
+        /// Obtendremso la fecha del calendario de inicio y fin, estas fechas nos enviara directamente fullcalendar
+        /// es necesario que tenga los nombres star y end, en los parametros
+        /// </summary>
+        /// <param name="start">Fecha de inicio</param>
+        /// <param name="end">Fecha de fin</param>
+        /// <returns>Retornaremos un JSON, para usar en la vista</returns>
+        public async Task<JsonResult> ObtenerTransaccionesCalendario(DateTime start, DateTime end)
+        {
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+
+            var transacciones = await repositorioTransacciones.ObtenerPorUsuarioId(
+                new ParametrosObtenerTransaccionesPorUsuario
+                {
+                    UsuarioId = usuarioId,
+                    FechaInicio = start,
+                    FechaFin = end,
+                });
+
+            //creamos una clase, en la que las propiedades seran los eventos que recibe fullCalendar
+            var eventosCalendario = transacciones.Select(transaccion => new EventoCalendario()
+            {
+                Title = transaccion.Monto.ToString("N"),
+                Start = transaccion.FechaTransaccion.ToString("yyyy-MM-dd"),
+                End = transaccion.FechaTransaccion.ToString("yyyy-MM-dd"),
+                //usaremos operador ternario, si es gasto sera de color rojo
+                Color = (transaccion.TipoOperacionId == TipoOperacion.Gasto) ? "Red" : null
+            });
+            //transformamos a JSOn, nuestra clase con las propiedades del calendario
+            return Json(eventosCalendario);
+        }
+
+        /// <summary>
+        /// Funcion que retornara el detalle de la transaccion
+        /// </summary>
+        /// <param name="fecha">fecha de inicio y fin de las transaccione seleccionada</param>
+        /// <returns>Retorna un JSON, con la transaccion</returns>
+        public async Task<JsonResult> ObtenerTransaccionesPorFecha(DateTime fecha)
+        {
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+
+            var transacciones = await repositorioTransacciones.ObtenerPorUsuarioId(
+                new ParametrosObtenerTransaccionesPorUsuario
+                {
+                    UsuarioId = usuarioId,
+                    FechaInicio = fecha,
+                    FechaFin = fecha,
+                });
+
+            return Json(transacciones);
+        }
     }
 }

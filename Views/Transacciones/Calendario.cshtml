@@ -3,3 +3,141 @@
 }
 
 <partial name="_SubMenu" model="SubMenuTransacciones.Calendario" />
+@*calendario, creado por fullcalendar*@
+<div id="calendario">
+
+</div>
+
+@*modal, para visualizacion detallada de las transacciones, al dar click*@
+<div class="modal fade" id="modalTransacciones" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        @*contenido*@
+        <div class="modal-content">
+            @*titulo o cabecera dle modal*@
+            <div class="modal-header">
+                <h5 class="modal-title">Transacciones del Día</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            @*cuerpo del modal*@
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th id="modalTablaFecha" colspan="2"></th>
+                            <th id="modalTablaIngresos" class="activo"></th>
+                            <th id="modalTablaGastos" class="pasivo"></th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="modalTablaCuerpo">
+                    </tbody>
+                </table>
+            </div>
+            @*el footer del modal*@
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/lib/fullcalendar/main.min.js"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function(){
+            //obtenemso por id
+            const calendarioEl = document.getElementById('calendario');
+            //creamos el calendario, pasnaodle el id (elemento)
+            const calendario = new FullCalendar.Calendar(calendarioEl, {
+                //se relaciona con el tamano de las celdas del calendario
+                dayMaxEventRows: 3,
+                //va a ser la vista, que nso eprmitira visualizar, es el tema que podremos cambiar (apariencia)
+                initialView: 'dayGridMonth',
+                //agregamos eventos,
+                //TEST, INDICAMOS D EOFMR AMANUAL COMO SE CREA O SE AGREGAN LOS EVENTOS QUE USA FULLCALENDAR
+                //events: [{
+                //    title: '2500.00',
+                //    start: '2023-07-11',
+                //    end: '2023-07-11'
+                //},
+                //{
+                //    title: '500.00',
+                //    start: '2023-07-11',
+                //    end: '2023-07-11',
+                //    color: 'red'
+                //}]
+
+                //agregamos los eventos de ofmra dinamica
+                //indicamos el controlador y la accion o funcion a usar
+                events: '/transacciones/ObtenerTransaccionesCalendario',
+                //definimso una funcion que se ejecutara cunado el usuario de clic
+                //sera de tipo async, porque vamos a ejecutar una funcion http
+                dateClick: async function(info){
+                    //dateStr, es por donde sale la data clicleada por el usuario
+                    await buscarTransaccionesPorFecha(info.dateStr);
+                }
+            });
+            calendario.render();
+        });
+
+        //funcion para ejecutar la funcion http
+        async function buscarTransaccionesPorFecha(fecha){
+            const response = 
+                await fetch(`/transacciones/ObtenerTransaccionesPorFecha?fecha=${fecha}`,{
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+            
+            const json = await response.json();
+            //console.log(json);
+
+            let ingresos = 0;
+            let gastos = 0;
+
+            const tipoOperacionesIngresos = 1;
+            //formateamos a ingres de estados unidos
+            const formateadorNumeros = new Intl.NumberFormat('en-US', {
+                //currency, porque le daremos un estilo del tipo dinero
+                style: 'currency',
+                //USD, indicamso q es la moneda americana, el dolar
+                currency: 'USD'
+            });
+
+            const filas = json.map(transaccion => {
+                if(transaccion.tipoOperacionId == tipoOperacionesIngresos){
+                    ingresos += transaccion.monto;
+                }else{
+                    gastos += transaccion.monto;
+                }
+
+                //en el arreglo de filas, vamos a colocar, los tr de html, ya que armaremos las filas de la tabla
+                //y las celdas
+                //PODEMOS USAR LIBRERIAS COMO [HANDLEBARS]
+                return `<tr>
+                    <td>${transaccion.categoria}</td>
+                    <td>${transaccion.cuenta}</td>
+                            <td align="right" colspan="${transaccion.tipoOperacionId === tipoOperacionesIngresos ? 1 : 2}"
+                            class="${transaccion.tipoOperacionId === tipoOperacionesIngresos ? 'activo' : 'pasivo'}">
+                        ${formateadorNumeros.format(transaccion.monto)}
+                    </td>
+                </tr>`;
+            });
+
+            //agrega,os la data del json
+            $("#modalTablaCuerpo").html(filas);
+            $("#modalTablaIngresos").html(formateadorNumeros.format(ingresos));
+            $("#modalTablaGastos").html(formateadorNumeros.format(gastos));
+            $("#modalTablaFecha").html(fecha);
+
+
+            //creamos el modal con javascript
+            const modalTransacciones = 
+                new bootstrap.Modal(document.getElementById('modalTransacciones'));
+
+            modalTransacciones.show();
+        }
+    </script>
+}
