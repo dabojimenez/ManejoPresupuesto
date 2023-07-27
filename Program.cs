@@ -1,11 +1,26 @@
 using ManejoPresupuesto.Models;
 using ManejoPresupuesto.Servicio;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//creamos la politica de autorizacion, esto para aplicar el atributo [Authorize] a todos los controladores
+var politicaUsuariosAutenticados = new AuthorizationPolicyBuilder()
+    //requreriremos la auternticacion de los usuarios
+    .RequireAuthenticatedUser()
+    //construiremos la politica de autenticacion de usuarios
+    .Build();
+
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews( opciones =>
+{
+    //buscamos la opcion de filtro
+    opciones.Filters
+    //agregamos la politica que cosntruimos
+        .Add(new AuthorizeFilter(politicaUsuariosAutenticados));
+});
 //configuramos el servicio, con su interfaces y su clase
 builder.Services.AddTransient<IRepositorioTiposCuentas, RepositorioTiposCuentas>();
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
@@ -37,7 +52,13 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
     options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
     options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
-}).AddCookie(IdentityConstants.ApplicationScheme);
+}).AddCookie(IdentityConstants.ApplicationScheme, opciones =>
+{
+    //agregamos nuestro propio path de configuracion de login
+    opciones.LoginPath = "/usuarios/login";
+    //ademas podemso cambair nuestro link para el logout
+    opciones.LogoutPath = "/usuarios/login";
+});
 
 var app = builder.Build();
 

@@ -1,5 +1,6 @@
 ﻿using ManejoPresupuesto.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -19,11 +20,14 @@ namespace ManejoPresupuesto.Controllers
             this.userManager = userManager;
             this.signInManager = signInManager;
         }
+
+        [AllowAnonymous]
         public IActionResult Registro()
         {
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Registro(RegistroViewModel model)
         {
@@ -69,6 +73,7 @@ namespace ManejoPresupuesto.Controllers
             return RedirectToAction("Login");
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public  IActionResult Login()
         {
@@ -76,13 +81,14 @@ namespace ManejoPresupuesto.Controllers
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
-            }
+            }//recuerdame, enviamremos la persistencia del login del usuario en el navegador
             //lockoutOnFailure, es para que cuando el usuario coloca varias veces mal su password, no se le permitira ingresar
             //a la cuenta, pero le enviamso en falso
             var resultado = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.Recuerdame,

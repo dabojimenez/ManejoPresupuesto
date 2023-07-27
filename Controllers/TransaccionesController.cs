@@ -3,6 +3,7 @@ using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Bibliography;
 using ManejoPresupuesto.Models;
 using ManejoPresupuesto.Servicio;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
@@ -10,6 +11,8 @@ using System.Reflection;
 
 namespace ManejoPresupuesto.Controllers
 {
+    //si colocmaos a nivel del controlador, ningun metodo o accion podra acceder si no esta autroizado
+    //[Authorize]
     public class TransaccionesController : Controller
     {
         private readonly IServicioUsuarios servicioUsuarios;
@@ -33,6 +36,9 @@ namespace ManejoPresupuesto.Controllers
             this.mapper = mapper;
             this.servicioReportes = servicioReportes;
         }
+
+        //con este atributo, si el usaurio no esta autenticado, no podra ingresar a la accion index
+        //[Authorize]
         public async Task<IActionResult> Index(int mes, int year)
         {
             var usuarioid = servicioUsuarios.ObtenerUsuarioId();
