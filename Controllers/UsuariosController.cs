@@ -1,4 +1,5 @@
 ﻿using ManejoPresupuesto.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -55,6 +56,15 @@ namespace ManejoPresupuesto.Controllers
                 }
                 return View(model);
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            //deslogueamos a usuario
+            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            //rederigimos al index, del controlador transacciones
+            return RedirectToAction("Index", "Transacciones");
         }
     }
 }
