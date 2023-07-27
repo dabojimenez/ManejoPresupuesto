@@ -1,0 +1,35 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@*iyectamos el signinmanager, ademas de importar el usisn necesario para trabajar con el msimo*@
+@inject SignInManager<Usuario> SignInManager
+
+<ul class="navbar-nav">
+    @*si el usuario esta atenticado le podemos pasar el usuario*@
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <span class="nav-link text-dark">
+                Hola, @User.Identity.Name
+            </span>
+        </li>
+        <li class="nav-item">
+            <form class="form-inline" asp-action="logout" asp-controller="Usuarios">
+                <button type="submit" class="nav-link btn btn-link text-dark">
+                    Logout
+                </button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Usuarios" asp-action="Registro">
+                Registro
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Usuarios" asp-action="Login">
+                Login
+            </a>
+        </li>
+    }
+</ul>

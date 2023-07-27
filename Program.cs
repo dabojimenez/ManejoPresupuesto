@@ -1,4 +1,6 @@
+using ManejoPresupuesto.Models;
 using ManejoPresupuesto.Servicio;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,29 @@ builder.Services.AddTransient<IRepositorioTransacciones, RepositorioTransaccione
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IServicioReportes, ServicioReportes>();
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddTransient<IRepositorioUsuarios, RepositorioUsuarios>();
+//configuracion de iuserstore y identity
+builder.Services.AddTransient<IUserStore<Usuario>, UsuarioStore>();
+
+//***************identity
+//builder.Services.AddIdentityCore<Usuario>(opciones =>
+//{
+//    opciones.Password.RequireUppercase = false;
+//    opciones.Password.RequireNonAlphanumeric = false;
+//    opciones.Password.RequireDigit = false;
+//    opciones.Password.RequireLowercase = false;
+//});
+//*****Incrementamos los metodos tradusidos a nuestro idioma
+builder.Services.AddIdentityCore<Usuario>().AddErrorDescriber<MensajesDeErrorIdentity>();
+
+//autenticacion y creacion de la cooki
+builder.Services.AddTransient<SignInManager<Usuario>>();
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+}).AddCookie(IdentityConstants.ApplicationScheme);
 
 var app = builder.Build();
 
@@ -29,11 +54,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     //pattern: "{controller=Home}/{action=Index}/{id?}");
-    pattern: "{controller=Transacciones}/{action=Index}/{id?}");
+    //pattern: "{controller=Transacciones}/{action=Index}/{id?}");
+    pattern: "{controller=Usuarios}/{action=Registro}/");
 
 app.Run();
