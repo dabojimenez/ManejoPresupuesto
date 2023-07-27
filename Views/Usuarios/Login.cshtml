@@ -1,0 +1,39 @@
+﻿@model ManejoPresupuesto.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h1>Login</h1>
+
+<hr />
+<form asp-action="Login">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" placeholder="correo@correo.com" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    @*para el campo de recuerdame*@
+    <div class="form-check">
+        <label class="form-check-label" asp-for="Recuerdame"></label>
+        <input class="form-check-input" type="checkbox" asp-for="Recuerdame"/>
+    </div>
+
+    <button class="btn btn-primary">Login</button>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+@*@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}*@

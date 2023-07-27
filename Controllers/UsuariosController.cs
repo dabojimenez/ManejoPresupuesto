@@ -64,7 +64,38 @@ namespace ManejoPresupuesto.Controllers
             //deslogueamos a usuario
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             //rederigimos al index, del controlador transacciones
-            return RedirectToAction("Index", "Transacciones");
+            //return RedirectToAction("Index", "Transacciones");
+            return RedirectToAction("Login");
+        }
+
+        [HttpGet]
+        public  IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            //lockoutOnFailure, es para que cuando el usuario coloca varias veces mal su password, no se le permitira ingresar
+            //a la cuenta, pero le enviamso en falso
+            var resultado = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.Recuerdame,
+                lockoutOnFailure: false);
+
+            if (resultado.Succeeded)
+            {
+                return RedirectToAction("Index", "Transacciones");
+            }
+            else
+            {
+                //si no es satisfactorio, agregamos una repsuesta, de error
+                ModelState.AddModelError(string.Empty, "Nombre de usuario o password incorrecto");
+                return View(model);
+            }
         }
     }
 }
