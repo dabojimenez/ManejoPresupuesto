@@ -21,11 +21,13 @@ namespace ManejoPresupuesto.Servicio
         {
             //usuario.EmailNormalizado = usuario.Email.ToUpper();
             using var connection = new SqlConnection(_connectionString);
-            int id = await connection.QuerySingleAsync<int>(@"
+            int UsuarioId = await connection.QuerySingleAsync<int>(@"
                     INSERT INTO USUARIOS (Email, EmailNormalizado, PasswordHash)
                     VALUES (@EMAIL, @EMAILNORMALIZADO, @PASSWORDHASH);
                     SELECT SCOPE_IDENTITY();", usuario);
-            return id;
+            //INSERTAMOS DATA DE FORMA PRELEIMINAR AL USAURIO, USNAOD EL SP QUE SE CREAO EN LA ABSE DE DATOS
+            await connection.ExecuteAsync("CrearDatosUsuarioNuevo", new { UsuarioId }, commandType: System.Data.CommandType.StoredProcedure);
+            return UsuarioId;
         }
 
         public async Task<Usuario> BuscarUsuarioPorEmail(string emailNormalizado)
