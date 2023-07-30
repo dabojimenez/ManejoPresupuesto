@@ -177,7 +177,14 @@ namespace ManejoPresupuesto.Controllers
         private async Task<IEnumerable<SelectListItem>> ObtenerCategorias(int usuarioid, TipoOperacion tipoOperacion)
         {
             var categorias = await repositorioCategorias.Obtener(usuarioid, tipoOperacion);
-            return categorias.Select(x => new SelectListItem(x.Nombre, x.Id.ToString()));
+            var resultado = categorias
+                                    .Select(x => new SelectListItem(x.Nombre, x.Id.ToString()))
+                                    .ToList();
+            //insertamos la opcion por defecto
+            var opcionpordefecto = new SelectListItem("-- Seleccione una categoría --","0",true);
+            //insertamos en la primera posicion d ela lista, usando la funcion insert, y le pasamos el index, y el valor a agregar
+            resultado.Insert(0, opcionpordefecto);
+            return resultado;
         }
 
         [HttpPost]
