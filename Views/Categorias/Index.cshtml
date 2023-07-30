@@ -1,5 +1,5 @@
-﻿@model IEnumerable<ManejoPresupuesto.Models.Categoria>
-
+﻿@*@model IEnumerable<ManejoPresupuesto.Models.Categoria>*@
+@model PaginacionRespuesta<Categoria>
 @{
     ViewData["Title"] = "Categorias";
 }
@@ -9,9 +9,27 @@
     La categoria nos permite indicar en que gastamos nuestro dinero,
     tambien, de donde provienen nuestros ingresos.
 </h5>
-<p>
+@*<h2>
+    cantidad: @Model.CantidadTotalRecords - cantidad paginas: @Model.CantidadTotalDePaginas
+</h2>*@
+@*<p>
     <a asp-action="Crear" class="btn btn-primary mb-3">Crear Nuevo</a>
-</p>
+</p>*@
+<a asp-action="Crear" class="btn btn-primary mb-3">Crear Nuevo</a>
+
+<div class="row">
+    <label>Cantidad de registros a mostrar:</label>
+    <div class="mb-3 col-auto">
+        <select asp-for="@Model.RecordsPorPagina" id="cantidadRecordsPorPagina" class="form-select">
+            <option>5</option>
+            <option>10</option>
+            <option>15</option>
+        </select>
+    </div>
+</div>
+
+<partial name="_Paginacion" />
+
 <table class="table">
     <thead>
         <tr>
@@ -27,7 +45,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var categoria in Model)
+        @foreach (var categoria in Model.Elementos)
         {
             <tr>
                 <td>
@@ -55,3 +73,14 @@
         }
     </tbody>
 </table>
+
+@section Scripts{
+    <script>
+        //verificamos si es que cambia el drowpdownlist, aplicandole la funcion change
+        $("#cantidadRecordsPorPagina").change(function(){
+            //obtenemso el valor d ela opcion
+            const recordsPorPagina = $(this).val();
+            location.href = `/Categorias/Index/?pagina=1&recordsPorPagina=${recordsPorPagina}`;
+        })
+    </script>
+}

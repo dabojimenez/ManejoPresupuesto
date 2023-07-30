@@ -82,6 +82,6 @@ app.MapControllerRoute(
     name: "default",
     //pattern: "{controller=Home}/{action=Index}/{id?}");
     //pattern: "{controller=Transacciones}/{action=Index}/{id?}");
-    pattern: "{controller=Usuarios}/{action=Registro}/");
+    pattern: "{controller=Usuarios}/{action=Login}/");
 
 app.Run();

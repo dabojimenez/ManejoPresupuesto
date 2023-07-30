@@ -1,0 +1,58 @@
+﻿@*usaremos la que no usa los generics, ya que solo trabajaremos con la cantyidad total d epagians y eso*@
+@model PaginacionRespuesta
+
+@{
+    //colocamos {0} o {1}, ya que vamos a sustitur los valores
+    var plantillaLink = string.Concat(Model.BaseUrl, "?pagina={0}&recordsPorPagina={1}");
+    //estara activo si es mayor a la pagina uno
+    var activarBotonAnterior = Model.Pagina > 1;
+    //estara activada siempre y cuandos ea menor a la canyidad mennor de paginas
+    var activarBotonSiguiente = Model.Pagina < Model.CantidadTotalDePaginas;
+}
+
+<nav>
+    <ul class="pagination">
+        <li class="page-item @(activarBotonAnterior ? null : "disabled")">
+            @if (activarBotonAnterior)
+            {
+                <a class="page-link"
+                   href="@string.Format(plantillaLink, Model.Pagina - 1, Model.RecordsPorPagina)">
+                    Anterior
+                </a>
+            }
+            else
+            {
+                <span class="page-link">
+                    Anterior
+                </span>
+            }
+
+        </li>
+        @for (int pagina = 1; pagina <= Model.CantidadTotalDePaginas; pagina++)
+        {
+            <li class="page-item @(pagina == Model.Pagina ? "active" : null)">
+                @*pagina = {0}*@
+                @*Model.RecordsPorPagina = {1}*@
+                <a class="page-link" href="@string.Format(plantillaLink, pagina, Model.RecordsPorPagina)">
+                    @pagina
+                </a>
+            </li>
+        }
+
+        <li class="page-item @(activarBotonSiguiente ? null : "disabled")">
+            @if (activarBotonSiguiente)
+            {
+                <a class="page-link"
+                   href="@string.Format(plantillaLink, Model.Pagina + 1, Model.RecordsPorPagina)">
+                    Siguiente
+                </a>
+            }
+            else
+            {
+                <span class="page-link">
+                    Siguiente
+                </span>
+            }
+        </li>
+    </ul>
+</nav>
