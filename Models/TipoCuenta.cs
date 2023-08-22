@@ -12,7 +12,12 @@ namespace ManejoPresupuesto.Models
         //[StringLength(maximumLength: 50, MinimumLength = 5, ErrorMessage = "Longitud del campo {0} debe estar entre [{2} - {1}]")]
         //[Display(Name = "Nombre del tipo Cuenta")]
         [PrimeraLetraMayuscula]
-        [Remote(action: "VerificarExisteTipoCuenta", controller: "TiposCuentas")]
+        //Remote, accionamos la accion de (VerificarExisteTipoCuenta), para realziar la validacion
+        //AdditionalFields, podemso pasar el nombre de uno o mas campos a la accion de (VerificarExisteTipoCuenta)
+        [Remote(action: "VerificarExisteTipoCuenta", controller: "TiposCuentas"
+            //, AdditionalFields = "Id, campo1, campo2, campo3")] ////envaimso varios campos, separados por comas
+            //nameof, mas utilizamos para evitar una discrepancia ocn el nombre de la propiedad que se envia
+            , AdditionalFields = nameof(Id))]
         public string Nombre { get; set; }
         public int UsuarioId { get; set; }
         public int Orden { get; set; }

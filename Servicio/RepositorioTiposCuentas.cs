@@ -12,7 +12,7 @@ namespace ManejoPresupuesto.Servicio
 
         //void Crear(TipoCuenta tipoCuenta);
         Task Crear(TipoCuenta tipoCuenta);
-        Task<bool> Existe(string nombre, int usuarioId);
+        Task<bool> Existe(string nombre, int usuarioId, int id = 0);
         Task<IEnumerable<TipoCuenta>> Obtener(int usuarioId);
         Task<TipoCuenta> ObtenerPorId(int id, int usuarioId);
         Task Ordenar(IEnumerable<TipoCuenta> tipoCuentasOrdenados);
@@ -48,15 +48,15 @@ namespace ManejoPresupuesto.Servicio
             tipoCuenta.Id = id;
         }
 
-        public async Task<bool> Existe(string nombre, int usuarioId)
+        public async Task<bool> Existe(string nombre, int usuarioId, int id = 0)
         {
             using var connection = new SqlConnection(_connectionString);
             //retornara, un tipo de dato de tipo entero, o por defecto traera un cero
             var existe = await connection.QueryFirstOrDefaultAsync<int>(
                                            $@"SELECT 1
                                                FROM TiposCuentas
-                                                WHERE Nombre = @Nombre and UsuarioId = @UsuarioId;",
-                                           new { nombre, usuarioId });
+                                                WHERE Nombre = @Nombre and UsuarioId = @UsuarioId AND Id <> @id;",
+                                           new { nombre, usuarioId, id });
             //retornamos verdadero si es uno por que 1 == 1, pero si me trae cero ceria 0 == 1 y eso es false
             return existe == 1;
         }
